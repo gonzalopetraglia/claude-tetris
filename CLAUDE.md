@@ -32,3 +32,9 @@ Todo el juego vive en un único script con estado en variables de módulo (`boar
 - Cambiar `COLS`, `ROWS` o `BLOCK` obliga a ajustar `width`/`height` del `<canvas id="board">` en `index.html` (`COLS*BLOCK` × `ROWS*BLOCK`).
 - Los elementos del DOM se capturan por `id` al cargar el script; renombrar un `id` en `index.html` rompe `game.js` silenciosamente.
 - El README documenta mecánicas, controles y constantes de tuneo: actualízalo si cambian.
+
+## Comandos personalizados
+
+- `/worktree <instrucciones>`: crea `.trees/<nombre>` con `git worktree add -b <nombre> ... main`
+  (el `<nombre>` se deriva del requerimiento) y delega el trabajo a un subagente que opera solo
+  dentro de ese directorio. El árbol principal no se toca. `.trees/` está en `.gitignore`.
