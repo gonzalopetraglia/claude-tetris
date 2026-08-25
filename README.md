@@ -17,6 +17,7 @@ Implementación del clásico **Tetris** en JavaScript vanilla, usando HTML5 Canv
     - [Opción 1: abrir el archivo directamente](#opción-1-abrir-el-archivo-directamente)
     - [Opción 2: servidor local (recomendado)](#opción-2-servidor-local-recomendado)
   - [Controles](#controles)
+  - [Menú de pausa](#menú-de-pausa)
   - [Cómo funciona](#cómo-funciona)
     - [1. `index.html`](#1-indexhtml)
     - [2. `style.css`](#2-stylecss)
@@ -41,7 +42,8 @@ Es una versión jugable del Tetris clásico con todas las mecánicas que esperar
 - **Vista previa** de la siguiente pieza.
 - **Sistema de puntuación** clásico de Tetris (100 / 300 / 500 / 800 multiplicado por nivel).
 - **Niveles** que aumentan cada 10 líneas y aceleran la caída.
-- **Pausa** y **Game Over** con opción de reinicio.
+- **Menú de pausa** con opciones reales: reanudar, reiniciar, ver controles y elegir el **nivel inicial** de la próxima partida.
+- **Game Over** con opción de reinicio.
 - **Toggle Light / Dark**: el juego arranca en modo oscuro; un switch permite cambiar a modo claro en cualquier momento.
 
 ---
@@ -85,7 +87,26 @@ Después abre `http://localhost:8000` en el navegador.
 | `↑` o `X` | Rotar la pieza en sentido horario |
 | `↓`       | Soft drop (bajar más rápido)      |
 | `Espacio` | Hard drop (caída instantánea)     |
-| `P`       | Pausar / reanudar                 |
+| `P` o `Esc` | Pausar / reanudar               |
+
+Mientras el menú de pausa está abierto, todos los controles del juego quedan bloqueados
+(solo responden `P` y `Esc`), de modo que no se producen movimientos accidentales al volver.
+
+---
+
+## Menú de pausa
+
+Al pulsar `P` o `Esc` se abre un overlay con estas opciones:
+
+| Opción              | Qué hace                                                                     |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Reanudar**        | Cierra el menú y continúa la partida.                                        |
+| **Reiniciar**       | Empieza una partida nueva sin recargar la página.                            |
+| **Ver controles**   | Despliega la lista de teclas dentro del propio menú.                         |
+| **Nivel inicial**   | Selector de 1 a 10; se aplica en la **próxima** partida, no en la actual.    |
+
+El nivel inicial fija tanto el `level` de arranque como la velocidad de caída inicial
+(`max(100, 1000 − (level − 1) × 90)` ms), y la progresión posterior es relativa a él.
 
 ---
 
@@ -99,7 +120,7 @@ Define la estructura visual:
 
 - Un `<canvas id="board">` de **300 × 600** píxeles donde se renderiza el tablero.
 - Un panel lateral con `SCORE`, `LINES`, `LEVEL`, vista de la siguiente pieza y la lista de controles.
-- Un overlay para los estados **PAUSA** y **GAME OVER**.
+- Un overlay `#overlay` para el estado **GAME OVER** y un segundo overlay `#pause-menu` con el menú de pausa (botones, lista de controles plegable y selector de nivel inicial).
 
 ### 2. `style.css`
 
@@ -116,7 +137,7 @@ Contiene toda la lógica del juego. A grandes rasgos:
 - **Game loop** (`loop`): basado en `requestAnimationFrame`, acumula el tiempo transcurrido y baja la pieza una fila cuando se supera `dropInterval`.
 - **Limpieza de líneas** (`clearLines`): recorre el tablero de abajo hacia arriba; cada fila completa se elimina y se inserta una vacía en la cima.
 - **Puntuación**: usa la tabla clásica `[0, 100, 300, 500, 800]` multiplicada por el nivel actual; el hard drop suma 2 puntos por celda recorrida y el soft drop 1 punto por fila.
-- **Nivel y velocidad**: el nivel sube cada 10 líneas; la velocidad de caída se calcula como `max(100, 1000 − (level − 1) × 90)` milisegundos.
+- **Nivel y velocidad**: el nivel se calcula como `startLevel + floor(lines / 10)`, es decir, sube cada 10 líneas partiendo del nivel inicial elegido en el menú de pausa; la velocidad de caída se calcula como `max(100, 1000 − (level − 1) × 90)` milisegundos.
 - **Ghost piece** (`ghostY`): proyecta la posición final de la pieza actual hacia abajo y la dibuja con `globalAlpha = 0.2`.
 - **Tema Light/Dark** (`applyTheme`): alterna la clase `light-theme` en `<body>` (que cambia las custom properties de color) y actualiza `gridColor` leyendo la variable `--grid-color`, forzando un `draw()` inmediato para repintar la grilla del canvas con el nuevo color.
 
