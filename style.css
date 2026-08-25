@@ -50,7 +50,7 @@ body.light-theme {
    Cada skin redefine solo las variables que cambian. `skin-retro` no necesita
    bloque: son los valores por defecto de :root / body.light-theme. */
 body.skin-neon             { --panel-bg: #05050a; --grid-color: #14142a; --board-shadow: rgba(80, 0, 180, 0.5); }
-body.skin-neon.light-theme { --panel-bg: #101018; --grid-color: #2a2a44; --board-shadow: rgba(80, 0, 180, 0.25); }
+body.skin-neon.light-theme { --panel-bg: #eef0fb; --grid-color: #cfd4ee; --board-shadow: rgba(120, 60, 220, 0.28); }
 
 body.skin-pastel             { --panel-bg: #23222c; --grid-color: #2c2b36; --board-shadow: rgba(0, 0, 0, 0.35); }
 body.skin-pastel.light-theme { --panel-bg: #fdfbff; --grid-color: #ecebf3; --board-shadow: rgba(120, 100, 160, 0.18); }

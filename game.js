@@ -49,13 +49,13 @@ const SKINS = {
       ],
       light: [
         null,
-        '#00e5e5',
-        '#ffd000',
-        '#ff1aff',
-        '#4dff2a',
-        '#ff2050',
-        '#4d9bff',
-        '#ffa31a',
+        '#0097a7',
+        '#e6a100',
+        '#c000c0',
+        '#1faa00',
+        '#e00030',
+        '#1046d8',
+        '#e05e00',
       ],
     },
     draw: drawBlockNeon,
@@ -330,13 +330,17 @@ function drawBlockRetro(context, px, py, color, size, alpha) {
 
 function drawBlockNeon(context, px, py, color, size, alpha) {
   context.globalAlpha = alpha ?? 1;
-  context.fillStyle = 'rgba(10, 10, 22, 0.55)';
+  // El nucleo se oscurece sobre fondo oscuro y se aclara sobre fondo claro, para
+  // que el tubo de neon contraste en los dos temas.
+  context.fillStyle = isLight ? 'rgba(255, 255, 255, 0.85)' : 'rgba(10, 10, 22, 0.55)';
   context.fillRect(px + 1, py + 1, size - 2, size - 2);
   context.shadowColor = color;
-  context.shadowBlur = size * 0.4;
+  context.shadowBlur = size * (isLight ? 0.5 : 0.4);
   context.strokeStyle = color;
   context.lineWidth = 2;
   context.strokeRect(px + 2, py + 2, size - 4, size - 4);
+  // Sobre fondo claro un solo trazo pierde el halo: se repasa para intensificarlo.
+  if (isLight) context.strokeRect(px + 2, py + 2, size - 4, size - 4);
   // El reset es imprescindible: si no, el glow contamina el grid y el canvas de NEXT.
   context.shadowBlur = 0;
   context.shadowColor = 'transparent';
