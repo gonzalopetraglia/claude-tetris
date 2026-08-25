@@ -20,6 +20,7 @@ Implementación del clásico **Tetris** en JavaScript vanilla, usando HTML5 Canv
   - [Menú de pausa](#menú-de-pausa)
   - [Combos](#combos)
   - [Tabla de records local](#tabla-de-records-local)
+  - [Temas visuales (skins)](#temas-visuales-skins)
   - [Cómo funciona](#cómo-funciona)
     - [1. `index.html`](#1-indexhtml)
     - [2. `style.css`](#2-stylecss)
@@ -50,6 +51,7 @@ Es una versión jugable del Tetris clásico con todas las mecánicas que esperar
 - **Tabla de records local** (top 5) guardada en `localStorage`, con nombre del jugador.
 - **Game Over** con opción de reinicio.
 - **Toggle Light / Dark**: el juego arranca en modo oscuro; un switch permite cambiar a modo claro en cualquier momento.
+- **Temas visuales (skins)**: cuatro estilos de dibujo (Retro, Neon, Pastel y Pixel art) seleccionables en caliente, con variante propia para el tema claro y oscuro y preferencia guardada en `localStorage`.
 
 ---
 
@@ -164,6 +166,25 @@ están envueltos en `try/catch`: el juego funciona igual, simplemente sin persis
 
 ---
 
+## Temas visuales (skins)
+
+El selector **SKIN**, junto al toggle Light/Dark en la esquina superior derecha, cambia por completo la apariencia del tablero sin recargar la página y sin tocar la partida en curso (tablero, puntuación y velocidad se conservan; también funciona en pausa o en GAME OVER).
+
+| Skin          | Aspecto                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| **Retro**     | Bloques cuadrados con colores planos y una banda de brillo superior (el estilo por defecto). |
+| **Neon**      | Fondo casi negro, relleno translúcido y borde luminoso con `shadowBlur` en el canvas.        |
+| **Pastel**    | Colores suaves y esquinas redondeadas (`roundRect`, con caída a `fillRect` si no existe).    |
+| **Pixel art** | Textura de "píxeles" alternando luces y sombras, borde oscuro de 1 px y grilla marcada.      |
+
+Detalles:
+
+- **Respeta el tema Light/Dark**: cada skin define dos paletas (`palettes.dark` y `palettes.light`) y un juego propio de variables CSS (`body.skin-neon`, `body.skin-neon.light-theme`, …). El toggle Light/Dark sigue mandando sobre el fondo de la página.
+- **Persistencia**: la elección se guarda en `localStorage` con la clave `tetris-skin` y se restaura al cargar. El acceso está envuelto en `try/catch`, así que en modo privado el juego sigue funcionando con el skin por defecto (`retro`).
+- **Reiniciar no cambia el skin**: `skin` e `isLight` son preferencias y viven fuera de `init()`.
+
+---
+
 ## Cómo funciona
 
 El juego se compone de tres archivos que cooperan:
@@ -206,6 +227,7 @@ Contiene toda la lógica del juego. A grandes rasgos:
 - **Pantalla de inicio** (`showStartScreen`): se llama al cargar el script en lugar de `init()`;
   deja el tablero vacío dibujado y el juego detenido hasta que se pulsa *Jugar*.
 - **Ghost piece** (`ghostY`): proyecta la posición final de la pieza actual hacia abajo y la dibuja con `globalAlpha = 0.2`.
+- **Skins** (`SKINS`, `palette`, `applySkin`): `SKINS` registra para cada skin su etiqueta, sus dos paletas (`dark` / `light`) y su función de dibujo. `drawBlock` es solo un _dispatcher_: resuelve el color con `palette()` y delega en `SKINS[skin].draw(...)` con las coordenadas ya en píxeles, por lo que el tablero, la vista previa y el ghost (alpha `0.2`) comparten el mismo camino. `applySkin` valida el nombre, conmuta la clase `skin-*` en `<body>`, guarda la preferencia y repinta con `draw()` + `drawNext()` sin tocar el game loop. Cada función de dibujo deja el contexto limpio (`globalAlpha = 1`, `shadowBlur = 0`) para que el glow de Neon no contamine la grilla ni el canvas de NEXT.
 - **Tema Light/Dark** (`applyTheme`): alterna la clase `light-theme` en `<body>` (que cambia las custom properties de color) y actualiza `gridColor` leyendo la variable `--grid-color`, forzando un `draw()` inmediato para repintar la grilla del canvas con el nuevo color.
 
 ### Flujo del juego
@@ -267,7 +289,7 @@ Algunos parámetros fáciles de tunear en `game.js`:
 | `COLS`         | Columnas del tablero                     | `10`                  |
 | `ROWS`         | Filas del tablero                        | `20`                  |
 | `BLOCK`        | Tamaño en píxeles de cada celda          | `30`                  |
-| `COLORS`       | Paleta de colores por tipo de pieza      | 7 colores             |
+| `SKINS`        | Skins: paletas dark/light y función de dibujo | 4 skins          |
 | `LINE_SCORES`  | Puntos por 1, 2, 3 o 4 líneas eliminadas | `[0,100,300,500,800]` |
 | `dropInterval` | Velocidad inicial de caída en ms         | `1000`                |
 | `COMBO_BONUS`  | Puntos base del bonus de combo           | `50`                  |
